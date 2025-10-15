@@ -1,4 +1,5 @@
 {
+  
   "name": "leon",
   "version": "1.0.0-beta.10+dev",
   "description": "Server, skills and web app of the Leon personal assistant",
@@ -163,5 +164,20 @@
     "tsx": "4.10.5",
     "typescript": "5.5.4",
     "vite": "4.5.0"
+  }
+}
+
+{
+  "scripts": {
+    "build:server": "tsc --project server/tsconfig.json",
+    "build:python-bridge": "cd bridges/python && npm run build",
+    "build:tcp-server": "cd tcp_server && npm run build",
+    "prebuild": "npm run clean",
+    "build": "npm run build:server && npm run build:python-bridge && npm run build:tcp-server",
+    "prestart": "npm run build && node server/dist/pre-check.js",
+    "start": "cross-env LEON_NODE_ENV=production node server/dist/index.js",
+    "dev": "cross-env LEON_NODE_ENV=development concurrently \"npm run dev:server\" \"npm run dev:app\"",
+    "dev:server": "ts-node --project server/tsconfig.json server/src/index.ts",
+    "dev:app": "vite app --port 3000"
   }
 }
