@@ -272,3 +272,103 @@ const GLOBAL_DATA_SCHEMAS = {
 
   process.exit(0)
 })()
+
+
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
+import { config } from 'dotenv';
+
+// Load environment variables
+config();
+
+class PreCheck {
+  private requiredPaths = [
+    'bridges/python/dist',
+    'tcp_server/dist',
+    'core/data',
+    'skills'
+  ];
+
+  private requiredFiles = [
+    'core/config/config.json',
+    'core/config/checksum.json',
+    'core/data/expressions.json',
+    'core/data/modules.json'
+  ];
+
+  constructor() {
+    this.runChecks();
+  }
+
+  private runChecks() {
+    console.log('🔍 Running pre-startup checks...');
+
+    // Check required directories
+    this.requiredPaths.forEach(path => {
+      if (!existsSync(join(process.cwd(), path))) {
+        console.error(`❌ Missing required directory: ${path}`);
+        process.exit(1);
+      }
+    });
+
+    // Check required files
+    this.requiredFiles.forEach(file => {
+      if (!existsSync(join(process.cwd(), file))) {
+        console.error(`❌ Missing required file: ${file}`);
+        process.exit(1);
+      }
+    });
+
+    // Check environment variables
+    this.checkEnvironment();
+
+    // Check Python bridge
+    this.checkPythonBridge();
+
+    console.log('✅ All pre-startup checks passed!');
+  }
+
+  private checkEnvironment() {
+    const requiredEnvVars = [
+      'LEON_NODE_ENV',
+      'LEON_LANG'
+    ];
+
+    requiredEnvVars.forEach(envVar => {
+      if (!process.env[envVar]) {
+        console.warn(`⚠️  Environment variable ${envVar} is not set`);
+      }
+    });
+
+    // Validate LEON_NODE_ENV
+    const validEnvs = ['production', 'development'];
+    if (!validEnvs.includes(process.env.LEON_NODE_ENV || '')) {
+      console.error('❌ LEON_NODE_ENV must be either "production" or "development"');
+      process.exit(1);
+    }
+  }
+
+  private checkPythonBridge() {
+    const bridgePath = join(process.cwd(), 'bridges/python/dist');
+
+    try {
+      const files = require('fs').readdirSync(bridgePath);
+      const hasBinary = files.some(file => 
+        file.includes('leon-python-bridge') || 
+        file.endsWith('.exe')
+      );
+
+      if (!hasBinary) {
+        console.error('❌ Python bridge binary not found');
+        console.log('💡 Run: npm run build:python-bridge');
+        process.exit(1);
+      }
+    } catch (error) {
+      console.error('❌ Cannot access Python bridge directory:', error);
+      process.exit(1);
+    }
+  }
+}
+
+// Run pre-check
+new PreCheck();
