@@ -142,6 +142,33 @@ leon create birth
 # OR install from the develop branch: leon create birth --develop
 ```
 
+### Offline Setup (Prerequisites and Commands)
+
+> To set up offline components (STT/TTS/Hotword) locally:
+
+Prerequisites:
+- Node.js >= 22.13.1, npm >= 10.9.2 (see `package.json` engines)
+- Run dependency install first (this provides `tsx`):
+
+```sh
+npm install --no-fund --no-audit
+```
+
+Then run the offline setup:
+
+```sh
+npm run setup:offline
+```
+
+If your Node/npm are below the required versions, the setup will exit early with a clear message. On Windows, we recommend using Volta to install the exact versions:
+
+```sh
+# Windows (PowerShell)
+# Install Volta from https://volta.sh, then:
+volta install node@22.13.1
+volta install npm@10.9.2
+```
+
 ### Usage
 
 ```sh

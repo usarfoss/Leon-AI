@@ -38,7 +38,7 @@
     "test:json": "jest --silent --projects test/json/json.jest.json",
     "test:over-http": "npm run generate:skills-endpoints && npm run train && cross-env PIPENV_PIPFILE=bridges/python/src/Pipfile LEON_NODE_ENV=testing LEON_HOST=http://localhost LEON_PORT=1338 LEON_HTTP_API_KEY=72aeb5ba324580963114481144385d7179c106fc jest --forceExit --silent --verbose --notify=false --bail --collectCoverage=false test/e2e/over-http.spec.js",
     "test:module": "tsx scripts/test-module.js",
-    "setup:offline": "tsx scripts/setup-offline/setup-offline.js",
+    "setup:offline": "node scripts/setup-offline/bootstrap-setup-offline.js",
     "setup:offline-stt": "tsx scripts/setup-offline/run-setup-stt.js",
     "setup:offline-tts": "tsx scripts/setup-offline/run-setup-tts.js",
     "setup:offline-hotword": "tsx scripts/setup-offline/run-setup-hotword.js",
