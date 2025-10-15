@@ -157,12 +157,10 @@ class TCPServer:
         except OSError as e:
             # If the port is already in use, close the connection and retry
             if 'Address already in use' in str(e):
-                self.log(f'Port {self.port} is already in use. Disconnecting client and retrying...')
-                if self.conn:
-                    self.conn.close()
-                # Wait for a moment before retrying
-                time.sleep(1)
-                self.init()
+                self.log(f'Port {self.port} is already in use. Leon may already be running.')
+                self.log('Please check if the app is already running before starting a new instance.')
+                self.log('Tips: open the web UI, close any existing Leon window/process, or stop it via your task manager and try again.')
+                return
             else:
                 raise
 
