@@ -73,7 +73,17 @@
     "pre-release:python-bridge": "tsx scripts/release/pre-release-binaries.js python-bridge",
     "pre-release:tcp-server": "tsx scripts/release/pre-release-binaries.js tcp-server",
     "check": "tsx scripts/check.js",
-    "kill": "pkill -f node && pkill -f leon-tcp-server && pkill -f pt_main_thread"
+    "kill": "pkill -f node && pkill -f leon-tcp-server && pkill -f pt_main_thread",
+    "build:server": "tsc --project server/tsconfig.json",
+    "build:python-bridge": "cd bridges/python && npm run build",
+    "build:tcp-server": "cd tcp_server && npm run build",
+    "prebuild": "npm run clean",
+    "build": "npm run build:server && npm run build:python-bridge && npm run build:tcp-server",
+    "prestart": "npm run build && node server/dist/pre-check.js",
+    "start": "cross-env LEON_NODE_ENV=production node server/dist/index.js",
+    "dev": "cross-env LEON_NODE_ENV=development concurrently \"npm run dev:server\" \"npm run dev:app\"",
+    "dev:server": "ts-node --project server/tsconfig.json server/src/index.ts",
+    "dev:app": "vite app --port 3000"
   },
   "dependencies": {
     "@aws-sdk/client-polly": "3.18.0",
