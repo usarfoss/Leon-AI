@@ -1,6 +1,6 @@
 import moment from 'moment-timezone'
 
-import utterance_samples from '../../core/data/en/answers.json'
+import utterance_samples from '../../core/data/en/answers.json' with { type: 'json' }
 
 jest.setTimeout(60000)
 
