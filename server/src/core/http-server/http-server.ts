@@ -119,7 +119,19 @@ export default class HTTPServer {
     try {
       await this.listen()
     } catch (e) {
-      LogHelper.error((e as Error).message)
+      const err = e as NodeJS.ErrnoException
+      if (err?.code === 'EADDRINUSE') {
+        LogHelper.error(
+          `Port ${this.port} is already in use. It looks like Leon may already be running.
+Please check if the app is already running before starting a new instance.
+Tips:
+- Open your browser to ${this.host}:${this.port} to see if Leon is active.
+- Close any existing Leon window or process, then try again.
+- Or stop the running instance from your system task manager and rerun "leon start".`
+        )
+      } else {
+        LogHelper.error(err?.message || String(err))
+      }
     }
   }
 
