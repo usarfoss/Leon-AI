@@ -8,8 +8,8 @@ import Fastify from 'fastify'
 import fastifyStatic from '@fastify/static'
 import socketio from 'socket.io'
 
-import { version } from '@@/package.json'
-import { endpoints } from '@@/core/skills-endpoints.json'
+import { version } from '@@/package.json' with { type: 'json' }
+import { endpoints } from '@@/core/skills-endpoints.json' with { type: 'json' }
 import {
   HAS_LOGGER,
   HAS_OVER_HTTP,
