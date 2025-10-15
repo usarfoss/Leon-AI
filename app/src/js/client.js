@@ -132,6 +132,25 @@ export default class Client {
       }
     })
 
+    this.socket.on('wake-word-unavailable', (data) => {
+      const reason = data?.reason
+      let message = 'Hotword detection is unavailable.'
+
+      if (reason === 'disabled') {
+        message = 'Hotword detection is disabled. You can enable it in settings or with LEON_WAKE_WORD=true.'
+      } else if (reason === 'mic') {
+        message = 'Hotword detection is unavailable because the default microphone could not be opened. Please set a default recording device and ensure microphone permissions are granted.'
+      } else if (reason === 'model') {
+        message = 'Hotword detection is turned off because required model files are missing. Place your wake word model, melspectrogram.onnx, and embedding.onnx in core/data/models/audio/wake_word, then restart.'
+      }
+
+      // Display a polite notice in the chat
+      this.chatbot.createBubble({
+        who: 'leon',
+        string: message
+      })
+    })
+
     this.socket.on('answer', (data) => {
       /*if (this._isVoiceModeEnabled) {
         this.voiceEnergy.status = 'listening'

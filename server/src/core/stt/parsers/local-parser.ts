@@ -14,6 +14,7 @@ const END_OF_OWNER_SPEECH_DETECTED_EVENT = 'asr-end-of-owner-speech-detected'
 const ACTIVE_LISTENING_DURATION_INCREASED_EVENT =
   'asr-active-listening-duration-increased'
 const ACTIVE_LISTENING_DISABLED_EVENT = 'asr-active-listening-disabled'
+const WAKE_WORD_UNAVAILABLE_EVENT = 'wake-word-unavailable'
 
 const EVENT_HANDLERS: EventHandler = {
   [STARTED_RECORDING_EVENT]: (): void => {
@@ -53,6 +54,11 @@ const EVENT_HANDLERS: EventHandler = {
 
   [ACTIVE_LISTENING_DISABLED_EVENT]: (): void => {
     SOCKET_SERVER.socket?.emit('asr-active-listening-disabled')
+  },
+
+  [WAKE_WORD_UNAVAILABLE_EVENT]: (firstEvent): void => {
+    const reason = (firstEvent as any).data?.reason
+    SOCKET_SERVER.socket?.emit('wake-word-unavailable', { reason })
   }
 }
 
@@ -77,7 +83,7 @@ export default class LocalParser extends STTParserBase {
    * @param strChunk - The string chunk to parse. E.g. `{"topic": "asr-new-speech", "data": {"text": " the other day I was thinking about the"}}{"topic": "asr-new-speech", "data": {"text": " magic number but"}}`
    */
   public async parse(strChunk: string): Promise<string | null> {
-    const rawEvents = strChunk.match(/{"topic": "asr-[^}]+}/g)
+    const rawEvents = strChunk.match(/\{"topic\": \"(?:asr|wake\-word)\-[^}]+}/g)
 
     if (!rawEvents) {
       LogHelper.title(this.name)

@@ -112,6 +112,11 @@ class TCPServer:
 
         if not IS_WAKE_WORD_ENABLED:
             self.log('Wake word is disabled')
+            # Inform the client that wake word is unavailable for this session
+            self.send_tcp_message({
+                'topic': 'wake-word-unavailable',
+                'data': { 'reason': 'disabled' }
+            })
             return
 
         wake_word_model_name = get_settings('wake_word')['model_file_name']
@@ -123,9 +128,25 @@ class TCPServer:
             device=get_settings('wake_word')['device'],
             detection_threshold=get_settings('wake_word')['detection_threshold']
         )
-        # Do not add anything after this line because it will be ignored
-        # as it loops for the wake word
-        self.asr.wake_word.start_listening()
+        # Only start listening if the mic is available and the wake word is enabled
+        if not self.asr.mic_stream:
+            self.log('Wake word unavailable: microphone stream not initialized')
+            self.send_tcp_message({
+                'topic': 'wake-word-unavailable',
+                'data': { 'reason': 'mic' }
+            })
+            return
+
+        if getattr(self.asr.wake_word, 'is_enabled', False):
+            # Do not add anything after this line because it will be ignored
+            # as it loops for the wake word
+            self.asr.wake_word.start_listening()
+        else:
+            self.log('Wake word is unavailable; see logs for details')
+            self.send_tcp_message({
+                'topic': 'wake-word-unavailable',
+                'data': { 'reason': 'model' }
+            })
 
     def init(self):
         try:
@@ -136,12 +157,10 @@ class TCPServer:
         except OSError as e:
             # If the port is already in use, close the connection and retry
             if 'Address already in use' in str(e):
-                self.log(f'Port {self.port} is already in use. Disconnecting client and retrying...')
-                if self.conn:
-                    self.conn.close()
-                # Wait for a moment before retrying
-                time.sleep(1)
-                self.init()
+                self.log(f'Port {self.port} is already in use. Leon may already be running.')
+                self.log('Please check if the app is already running before starting a new instance.')
+                self.log('Tips: open the web UI, close any existing Leon window/process, or stop it via your task manager and try again.')
+                return
             else:
                 raise
 
