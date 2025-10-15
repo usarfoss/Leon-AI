@@ -179,6 +179,55 @@ If you have an idea for improving Leon, do not hesitate.
 
 **Leon needs open source to live**, the more skills he has, the more skillful he becomes.
 
+## 🐳 Docker Compose (Node server + Python TCP server)
+
+When running with Docker Compose, ensure the Node server can reach the Python TCP server via the internal network:
+
+```yaml
+services:
+  tcp_server:
+    build:
+      context: .
+    environment:
+      - LEON_STT=true
+      - LEON_TTS=true
+      - LEON_WAKE_WORD=false
+      - LEON_PY_TCP_SERVER_HOST=0.0.0.0
+      - LEON_PY_TCP_SERVER_PORT=1342
+    ports:
+      - "1342:1342"
+
+  server:
+    build: .
+    environment:
+      - LEON_PY_TCP_SERVER_HOST=tcp_server # Compose service name
+      - LEON_PY_TCP_SERVER_PORT=1342
+      - LEON_HOST=http://0.0.0.0
+      - LEON_PORT=1337
+    depends_on:
+      - tcp_server
+    ports:
+      - "1337:1337"
+```
+
+If the Node server logs “Failed to connect to the Python TCP server”, double‑check:
+
+- `LEON_PY_TCP_SERVER_HOST` is set to the Compose service name (e.g., `tcp_server`).
+- The Python service listens on `0.0.0.0:1342` and exposes the port.
+- Both services are in the same Compose project/network.
+
+## 🎤 Offline hotword troubleshooting
+
+Reproduce:
+
+- On Windows, `npm run wake` fails (unsupported). On macOS/Linux without deps, native module load fails.
+
+Fix:
+
+- Windows: use macOS/Linux or WSL2 Ubuntu and run `npm run setup:offline-hotword`.
+- Linux: `sudo apt-get install sox libsox-fmt-all -y`; macOS: `brew install swig portaudio sox`; then `npm run setup:offline-hotword`.
+- Ensure `hotword/models/leon-<lang>.pmdl` exists for your chosen language.
+
 ## 📖 The Story Behind Leon
 
 You'll find a write-up on this [blog post](https://blog.getleon.ai/the-story-behind-leon/).

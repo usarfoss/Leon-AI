@@ -17,7 +17,9 @@ export default () =>
     }
 
     if (info.type === 'windows') {
-      LogHelper.error('Voice offline mode is not available on Windows')
+      LogHelper.error(
+        'Offline hotword is not available on Windows. To regain hotword functionality: use macOS or Linux and run "npm run setup:offline-hotword", or run the hotword node in WSL2 Ubuntu.'
+      )
       reject()
     } else {
       try {
@@ -45,7 +47,13 @@ export default () =>
 
         resolve()
       } catch (e) {
-        LogHelper.error(`Failed to install offline hotword detection: ${e}`)
+        LogHelper.error(
+          'Failed to install offline hotword detection. Make sure SoX/PortAudio/swig are installed.\n' +
+            '- Linux: sudo apt-get install sox libsox-fmt-all -y\n' +
+            '- macOS: brew install swig portaudio sox\n' +
+            'Then re-run: npm run setup:offline-hotword' 
+        )
+        LogHelper.error(String(e))
         reject(e)
       }
     }

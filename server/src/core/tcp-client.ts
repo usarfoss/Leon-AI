@@ -96,6 +96,13 @@ export default class TCPClient {
 
         if (this.reconnectCounter >= RETRIES_NB) {
           LogHelper.error(`Failed to connect to the ${this.name} TCP server`)
+          LogHelper.warning(
+            'If you are running with Docker Compose, ensure the Node server can reach the Python TCP server:\n' +
+              '- Set LEON_PY_TCP_SERVER_HOST to the service name (e.g., tcp_server)\n' +
+              '- Expose port 1342 on the Python TCP service and use the internal network\n' +
+              '- Or run both services in the same compose file so service discovery works\n' +
+              'Example: environment: LEON_PY_TCP_SERVER_HOST=tcp_server, LEON_PY_TCP_SERVER_PORT=1342'
+          )
           this.tcpSocket.end()
         }
 

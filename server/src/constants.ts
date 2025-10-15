@@ -220,9 +220,12 @@ export const HAS_OVER_HTTP = process.env['LEON_OVER_HTTP'] === 'true'
 export const HTTP_API_KEY = process.env['LEON_HTTP_API_KEY']
 export const HTTP_API_LANG = process.env['LEON_HTTP_API_LANG']
 
-export const PYTHON_TCP_SERVER_HOST = process.env['LEON_PY_TCP_SERVER_HOST']
+// TCP server defaults
+// In Docker Compose, set LEON_PY_TCP_SERVER_HOST to your Python TCP service name (e.g., "tcp_server")
+export const PYTHON_TCP_SERVER_HOST =
+  process.env['LEON_PY_TCP_SERVER_HOST'] || '127.0.0.1'
 export const PYTHON_TCP_SERVER_PORT = Number(
-  process.env['LEON_PY_TCP_SERVER_PORT']
+  process.env['LEON_PY_TCP_SERVER_PORT'] || 1342
 )
 
 export const IS_TELEMETRY_ENABLED = process.env['LEON_TELEMETRY'] === 'true'
