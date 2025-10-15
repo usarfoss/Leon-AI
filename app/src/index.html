@@ -300,7 +300,60 @@
       <div id="top-container">
         <div id="mood"></div>
         <button id="info">Info</button>
+        <button id="toggle-widgets">Widgets</button>
       </div>
+      
+      <!-- Widgets Section -->
+      <div id="widgets-section" class="hide">
+        <div id="widgets-controls">
+          <h2>Dashboard Widgets</h2>
+          <button id="add-widget-btn">Add Widget</button>
+        </div>
+        <div id="widgets-container"></div>
+      </div>
+
+      <!-- Add Widget Dialog -->
+      <div id="add-widget-dialog">
+        <div class="dialog-content">
+          <div class="dialog-header">
+            <h2>Add Widget</h2>
+            <button class="dialog-close" id="close-dialog">×</button>
+          </div>
+          <div class="widget-types">
+            <div class="widget-type-card" data-widget-type="clock">
+              <div class="widget-type-icon">🕐</div>
+              <div class="widget-type-name">Clock</div>
+              <div class="widget-type-desc">Display current time and date</div>
+            </div>
+            <div class="widget-type-card" data-widget-type="weather">
+              <div class="widget-type-icon">🌤️</div>
+              <div class="widget-type-name">Weather</div>
+              <div class="widget-type-desc">Show weather information</div>
+            </div>
+            <div class="widget-type-card" data-widget-type="notes">
+              <div class="widget-type-icon">📝</div>
+              <div class="widget-type-name">Notes</div>
+              <div class="widget-type-desc">Quick notes and reminders</div>
+            </div>
+            <div class="widget-type-card" data-widget-type="quick-links">
+              <div class="widget-type-icon">🔗</div>
+              <div class="widget-type-name">Quick Links</div>
+              <div class="widget-type-desc">Favorite links and bookmarks</div>
+            </div>
+            <div class="widget-type-card" data-widget-type="stats">
+              <div class="widget-type-icon">📊</div>
+              <div class="widget-type-name">Stats</div>
+              <div class="widget-type-desc">Display statistics</div>
+            </div>
+            <div class="widget-type-card" data-widget-type="todo">
+              <div class="widget-type-icon">✅</div>
+              <div class="widget-type-name">Todo List</div>
+              <div class="widget-type-desc">Manage your tasks</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="feed">
         <p id="no-bubble" class="hide">
           You can start to interact with Leon, don't be shy.

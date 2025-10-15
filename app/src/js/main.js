@@ -8,6 +8,7 @@ import Client from './client'
 // import Recorder from './recorder'
 // import listener from './listener'
 import { onkeydownstartrecording, onkeydowninput } from './onkeydown'
+import WidgetManager from './widget-manager'
 
 const config = {
   app: 'webapp',
@@ -59,6 +60,72 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     client.updateMood(window.leonConfigInfo.mood)
     client.init()
+
+    // Initialize Widget Manager
+    const widgetManager = new WidgetManager()
+    await widgetManager.init('widgets-container')
+
+    // Toggle widgets section
+    const toggleWidgetsBtn = document.querySelector('#toggle-widgets')
+    const widgetsSection = document.querySelector('#widgets-section')
+    const feedSection = document.querySelector('#feed')
+    
+    toggleWidgetsBtn.addEventListener('click', () => {
+      const isHidden = widgetsSection.classList.contains('hide')
+      if (isHidden) {
+        widgetsSection.classList.remove('hide')
+        feedSection.classList.add('hide')
+        toggleWidgetsBtn.textContent = 'Chat'
+      } else {
+        widgetsSection.classList.add('hide')
+        feedSection.classList.remove('hide')
+        toggleWidgetsBtn.textContent = 'Widgets'
+      }
+    })
+
+    // Add widget dialog handlers
+    const addWidgetDialog = document.querySelector('#add-widget-dialog')
+    const closeDialogBtn = document.querySelector('#close-dialog')
+    
+    closeDialogBtn.addEventListener('click', () => {
+      widgetManager.hideAddWidgetDialog()
+    })
+
+    // Handle widget type selection
+    document.querySelectorAll('.widget-type-card').forEach(card => {
+      card.addEventListener('click', async () => {
+        const widgetType = card.dataset.widgetType
+        const widgetConfig = {
+          type: widgetType,
+          title: card.querySelector('.widget-type-name').textContent,
+          position: widgetManager.widgets.length,
+          config: {},
+          data: {}
+        }
+
+        // Add default data for specific widget types
+        if (widgetType === 'quick-links') {
+          widgetConfig.data.links = [
+            { title: 'GitHub', url: 'https://github.com', icon: '🐙' },
+            { title: 'Stack Overflow', url: 'https://stackoverflow.com', icon: '📚' }
+          ]
+        } else if (widgetType === 'stats') {
+          widgetConfig.data.stats = [
+            { label: 'Tasks', value: '12' },
+            { label: 'Completed', value: '8' }
+          ]
+        } else if (widgetType === 'weather') {
+          widgetConfig.data = {
+            temp: '72',
+            condition: 'Sunny',
+            location: 'Your City'
+          }
+        }
+
+        await widgetManager.addWidget(widgetConfig)
+        widgetManager.hideAddWidgetDialog()
+      })
+    })
 
     infoButton.addEventListener('click', () => {
       alert(JSON.stringify(infoToDisplay, null, 2))

@@ -337,6 +337,73 @@ server.bootstrap = async () => {
 
   server.fastify.register(infoPlugin, { apiVersion })
 
+  // Widgets API endpoints
+  const widgetsStore = new Map() // In-memory storage for widgets (can be replaced with DB)
+  
+  server.fastify.get('/api/widgets', async (request, reply) => {
+    const userId = request.query.userId || 'default'
+    const userWidgets = widgetsStore.get(userId) || []
+    reply.send({
+      widgets: userWidgets,
+      success: true
+    })
+  })
+
+  server.fastify.post('/api/widgets', async (request, reply) => {
+    const { userId = 'default', widget } = request.body
+    const userWidgets = widgetsStore.get(userId) || []
+    
+    const newWidget = {
+      id: `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ...widget,
+      createdAt: new Date().toISOString()
+    }
+    
+    userWidgets.push(newWidget)
+    widgetsStore.set(userId, userWidgets)
+    
+    reply.send({
+      widget: newWidget,
+      success: true
+    })
+  })
+
+  server.fastify.put('/api/widgets/:id', async (request, reply) => {
+    const { id } = request.params
+    const { userId = 'default', widget } = request.body
+    const userWidgets = widgetsStore.get(userId) || []
+    
+    const index = userWidgets.findIndex(w => w.id === id)
+    if (index !== -1) {
+      userWidgets[index] = { ...userWidgets[index], ...widget, updatedAt: new Date().toISOString() }
+      widgetsStore.set(userId, userWidgets)
+      reply.send({
+        widget: userWidgets[index],
+        success: true
+      })
+    } else {
+      reply.statusCode = 404
+      reply.send({
+        message: 'Widget not found',
+        success: false
+      })
+    }
+  })
+
+  server.fastify.delete('/api/widgets/:id', async (request, reply) => {
+    const { id } = request.params
+    const userId = request.query.userId || 'default'
+    const userWidgets = widgetsStore.get(userId) || []
+    
+    const filteredWidgets = userWidgets.filter(w => w.id !== id)
+    widgetsStore.set(userId, filteredWidgets)
+    
+    reply.send({
+      success: true,
+      message: 'Widget deleted'
+    })
+  })
+
   if (HAS_OVER_HTTP) {
     server.fastify.register((instance, opts, next) => {
       instance.addHook('preHandler', keyMidd)
